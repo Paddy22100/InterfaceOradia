@@ -13,24 +13,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-
     - name: Install Railway CLI
       run: npm install -g railway
 
+    - name: Authenticate Railway
+      run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
+
     - name: Link Railway project
-      env:
-        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      run: |
-        railway link --project=f1f4b864-dc6a-48a6-b871-0eb83d846bcd
-        railway whoami
-        railway status || true
+      run: railway link f1f4b864-dc6a-48a6-b871-0eb83d846bcd
 
     - name: Deploy to Railway
-      env:
-        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      run: |
-        railway up --service=nurturing-prosperity --detach --verbose || true
+      run: railway up --service=nurturing-prosperity --detach

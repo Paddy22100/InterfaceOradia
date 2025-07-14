@@ -10,25 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
       with:
-        python-version: '3.11'
+        node-version: '20'
 
     - name: Install Railway CLI
       run: npm install -g railway
 
-    - name: Link Railway project
+    - name: Link Railway Project
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
         railway link f1f4b864-dc6a-48a6-b871-0eb83d846bcd
+        railway whoami
+        railway status
 
     - name: Deploy to Railway
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
-        railway up --service=nurturing-prosperity --detach
+        railway up --service=nurturing-prosperity --detach --verbose

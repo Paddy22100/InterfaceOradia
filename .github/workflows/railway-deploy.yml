@@ -8,25 +8,17 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📥 Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 🐍 Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: 📦 Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: 🚀 Deploy to Railway
+      - name: Set up Railway CLI
         run: |
           curl -fsSL https://railway.app/install.sh | sh
-          railway login --apiToken ${{ secrets.RAILWAY_API_TOKEN }}
-          railway up --service nurturing-prosperity
-        env:
-          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
+
+      - name: Login to Railway
+        run: railway login --apiKey ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Deploy to Railway
+        run: railway up --service nurturing-prosperity --yes

@@ -21,14 +21,14 @@ jobs:
     - name: Install Railway CLI
       run: npm install -g railway
 
-    - name: Install dependencies
+    - name: Link Railway project
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        railway link f1f4b864-dc6a-48a6-b871-0eb83d846bcd
 
     - name: Deploy to Railway
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
-        railway link f1f4b864-dc6a-48a6-b871-0eb83d846bcd
-        railway up --detach
+        railway up --service=nurturing-prosperity --detach

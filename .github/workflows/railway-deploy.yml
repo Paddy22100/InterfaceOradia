@@ -10,17 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Install Railway CLI
       run: npm install -g railway
 
-    - name: Authenticate Railway
-      run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
-
-    - name: Link Railway project
-      run: railway link f1f4b864-dc6a-48a6-b871-0eb83d846bcd
-
     - name: Deploy to Railway
-      run: railway up --service=nurturing-prosperity --detach
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: railway up --project f1f4b864-dc6a-48a6-b871-0eb83d846bcd --service InterfaceOradia --detach

@@ -16,7 +16,15 @@ jobs:
     - name: Install Railway CLI
       run: npm install -g railway
 
+    - name: Set PORT environment variable
+      run: echo "PORT=8000" >> $GITHUB_ENV
+
     - name: Deploy to Railway
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      run: railway up --project f1f4b864-dc6a-48a6-b871-0eb83d846bcd --service InterfaceOradia --detach
+        PORT: ${{ env.PORT }}
+      run: |
+        railway up \
+          --project f1f4b864-dc6a-48a6-b871-0eb83d846bcd \
+          --service InterfaceOradia \
+          --detach

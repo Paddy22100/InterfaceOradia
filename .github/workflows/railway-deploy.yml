@@ -10,21 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1. Récupération du code
     - name: Checkout code
       uses: actions/checkout@v4
 
+    # 2. Installer la CLI Railway
     - name: Install Railway CLI
       run: npm install -g railway
 
-    - name: Set PORT environment variable
-      run: echo "PORT=8000" >> $GITHUB_ENV
+    # 3. Lier le projet Railway
+    - name: Link Railway project
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: railway link f1f4b864-dc6a-48a6-b871-0eb83d846bcd
 
+    # 4. Déployer le service
     - name: Deploy to Railway
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        PORT: ${{ env.PORT }}
-      run: |
-        railway up \
-          --project f1f4b864-dc6a-48a6-b871-0eb83d846bcd \
-          --service InterfaceOradia \
-          --detach
+      run: railway up --service InterfaceOradia --detach

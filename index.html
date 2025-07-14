@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Interface Oradia</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <!-- Logo & Titre -->
+  <div id="header">
+    <img src="logo.png" alt="Logo Oradia" id="logo-header"/>
+    <h1>✨ Interface Oradia ✨</h1>
+    <p>Bienvenue dans l’interface Oradia 🪄</p>
+  </div>
+
+  <!-- Login -->
+  <div id="login" class="section">
+    <form id="login-form">
+      <input id="password" type="password" placeholder="Mot de passe"/>
+      <button type="submit">Entrer</button>
+    </form>
+  </div>
+
+  <!-- Application cachée avant login -->
+  <div id="app" class="section" style="display:none;">
+    <!-- Zone de génération de page -->
+    <div class="section">
+      <input id="promptInput" type="text"
+             placeholder="Ex : Crée-moi une page d'abonnement..."/>
+      <button id="btn-generate">Envoyer</button>
+    </div>
+
+    <!-- Spinner + message -->
+    <div id="spinner-container" class="section" style="display:none; text-align:center;">
+      <div id="spinner" class="spinner"></div>
+      <p class="ai-content">Génération en cours…</p>
+    </div>
+
+    <!-- Aperçu de la page générée -->
+    <div id="preview" class="section ai-content"></div>
+
+    <!-- Bouton déploiement (caché par défaut) -->
+    <div class="section">
+      <button id="btn-deploy" style="display:none;">🚀 Déployer sur Vercel</button>
+    </div>
+  </div>
+
+  <!-- LOGIN SCRIPT -->
+  <script>
+    const loginForm     = document.getElementById("login-form");
+    const loginDiv      = document.getElementById("login");
+    const appDiv        = document.getElementById("app");
+    const passwordField = document.getElementById("password");
+    const APP_PASSWORD  = "RafalE";
+
+    loginForm.addEventListener("submit", function(e){
+      e.preventDefault();
+      if (passwordField.value === APP_PASSWORD) {
+        loginDiv.style.display = "none";
+        appDiv.style.display   = "block";
+      } else {
+        alert("❌ Mot de passe incorrect");
+      }
+    });
+  </script>
+
+  <!-- TON main.js -->
+  <script src="main.js"></script>
+</body>
+</html>

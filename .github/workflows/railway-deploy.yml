@@ -18,17 +18,27 @@ jobs:
     - name: Install Railway CLI
       run: npm install -g railway
 
-    # 3️⃣ Définir PORT pour FastAPI
+    # 3️⃣ Définir la variable PORT pour FastAPI
     - name: Set PORT environment variable
       run: echo "PORT=8000" >> $GITHUB_ENV
 
-    # 4️⃣ Lier le projet Railway
+    # 4️⃣ Ajouter un Procfile si absent
+    - name: Ensure Procfile exists for FastAPI
+      run: |
+        if [ ! -f Procfile ]; then
+          echo "web: uvicorn server:app --host 0.0.0.0 --port \${PORT}" > Procfile
+          echo "✅ Procfile créé."
+        else
+          echo "ℹ️ Procfile déjà présent."
+        fi
+
+    # 5️⃣ Lier le projet Railway
     - name: Link Railway project
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: railway link f1f4b864-dc6a-48a6-b871-0eb83d846bcd
 
-    # 5️⃣ Tenter railway up puis fallback sur railway deploy si échec
+    # 6️⃣ Déployer : railway up puis fallback sur railway deploy
     - name: Deploy to Railway (hybrid up/deploy)
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

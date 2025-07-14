@@ -6,12 +6,14 @@ import re
 
 from dotenv import load_dotenv
 from openai import OpenAI
-from flask import Flask, request, jsonify, send_from_directory
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 # ── 1) Chargement des variables depuis .env ────────────────────────────────
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-VERCEL_TOKEN   = os.getenv("VERCEL_TOKEN")
+VERCEL_TOKEN = os.getenv("VERCEL_TOKEN")
 
 if not OPENAI_API_KEY:
     raise RuntimeError("🔴 Définis OPENAI_API_KEY dans ton fichier .env")
@@ -21,25 +23,19 @@ if not VERCEL_TOKEN:
 # ── 2) Client OpenAI ────────────────────────────────────────────────────────
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# ── 3) Création de l’app Flask ──────────────────────────────────────────────
-app = Flask(
-    __name__,
-    static_folder=".",      # on sert tout le dossier courant en statique
-    static_url_path=""      # aux URLs racine ("/styles.css", "/main.js", etc.)
-)
+# ── 3) Création de l’app FastAPI ────────────────────────────────────────────
+app = FastAPI()
 
-# ── 4) Route pour la page d’accueil ─────────────────────────────────────────
-@app.route("/", methods=["GET"])
-def index():
-    return send_from_directory(".", "index.html")
+# ── 4) Servir les fichiers statiques (HTML, CSS, JS) ────────────────────────
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
 
-# ── 5) Génération d’une page HTML via l’IA ─────────────────────────────────
-@app.route("/api/generate-page", methods=["POST"])
-def generate_page():
-    data   = request.get_json(silent=True) or {}
+# ── 5) Génération d’une page HTML via l’IA ──────────────────────────────────
+@app.post("/api/generate-page")
+async def generate_page(request: Request):
+    data = await request.json()
     prompt = data.get("prompt", "").strip()
     if not prompt:
-        return jsonify(error="Prompt manquant"), 400
+        raise HTTPException(status_code=400, detail="Prompt manquant")
 
     # Extraire un nom de page dynamique (ex : "page test" → test.html)
     m = re.search(r"page\s+(?:de|d['’])?\s*([A-Za-z0-9_-]+)", prompt, re.IGNORECASE)
@@ -53,7 +49,7 @@ def generate_page():
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": system_msg},
-            {"role": "user",   "content": prompt}
+            {"role": "user", "content": prompt}
         ],
         temperature=0.8,
         max_tokens=800
@@ -65,11 +61,11 @@ def generate_page():
     with open(pathlib.Path(filename), "w", encoding="utf-8") as f:
         f.write(html)
 
-    return jsonify(filename=filename)
+    return {"filename": filename}
 
-# ── 6) Déploiement automatique sur Vercel ──────────────────────────────────
-@app.route("/api/deploy", methods=["POST"])
-def deploy():
+# ── 6) Déploiement automatique sur Vercel ───────────────────────────────────
+@app.post("/api/deploy")
+async def deploy():
     try:
         # On appelle vercel.cmd directement, avec --yes pour confirmer
         cmd = f"vercel.cmd --prod --token {VERCEL_TOKEN} --yes"
@@ -85,22 +81,24 @@ def deploy():
         url = out.strip().split("\n")[-1]
     except subprocess.CalledProcessError as e:
         print("❌ Erreur Vercel :", e.output)
-        return jsonify(error=f"❌ Erreur Vercel : {e.output}"), 500
+        raise HTTPException(status_code=500, detail=f"Erreur Vercel : {e.output}")
     except FileNotFoundError as e:
         print("❌ CLI introuvable :", e)
-        return jsonify(error="❌ Erreur interne : CLI Vercel introuvable"), 500
+        raise HTTPException(status_code=500, detail="Erreur interne : CLI Vercel introuvable")
 
-    return jsonify(url=url)
+    return {"url": url}
 
-# ── 7) Fallback : pour servir toutes les autres pages statiques ────────────
-@app.route("/<path:filename>", methods=["GET"])
-def serve_static(filename):
-    if pathlib.Path(filename).is_file():
-        return send_from_directory(".", filename)
-    return "Not Found", 404
+# ── 7) Page d’accueil fallback ──────────────────────────────────────────────
+@app.get("/{filename}")
+async def serve_static(filename: str):
+    file_path = pathlib.Path(filename)
+    if file_path.is_file():
+        return FileResponse(file_path)
+    raise HTTPException(status_code=404, detail="Fichier non trouvé")
 
+# ── 8) Lancer l’application ────────────────────────────────────────────────
 if __name__ == "__main__":
-    # Utilise le port Railway s'il est défini
+    import uvicorn
     port = int(os.environ.get("PORT", 8000))
     print(f"▶▶▶ server.py lancé sur http://0.0.0.0:{port} ◀◀◀")
-    app.run(debug=True, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)

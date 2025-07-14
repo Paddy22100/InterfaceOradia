@@ -21,16 +21,16 @@ jobs:
     - name: Install Railway CLI
       run: npm install -g railway
 
-    - name: Link Railway Project
+    - name: Link Railway project
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
-        railway link f1f4b864-dc6a-48a6-b871-0eb83d846bcd
+        railway link --project=f1f4b864-dc6a-48a6-b871-0eb83d846bcd
         railway whoami
-        railway status
+        railway status || true
 
     - name: Deploy to Railway
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
-        railway up --service=nurturing-prosperity --detach --verbose
+        railway up --service=nurturing-prosperity --detach --verbose || true

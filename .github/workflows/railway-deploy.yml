@@ -10,26 +10,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Récupérer le code
-      - name: Checkout code
-        uses: actions/checkout@v4
+    # 1️⃣ Récupérer le code
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      # 2️⃣ Installer Railway CLI depuis npm (plus fiable que curl)
-      - name: Install Railway CLI
-        run: |
-          npm install -g @railway/cli
-          echo "$(npm bin -g)" >> $GITHUB_PATH
+    # 2️⃣ Installer la CLI Railway (nouvelle version)
+    - name: Install Railway CLI
+      run: npm install -g @railway/cli
 
-      # 3️⃣ Vérifier la version CLI
-      - name: Check Railway CLI version
-        run: railway --version
+    # 3️⃣ Configurer Railway (token et projet)
+    - name: Link Railway project
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: |
+        echo "✅ Configuration Railway CLI"
+        railway use f1f4b864-dc6a-48a6-b871-0eb83d846bcd
 
-      # 4️⃣ Déployer avec Railway
-      - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          echo "🚀 Déploiement en cours avec nouvelle CLI (npm)..."
-          railway up --project f1f4b864-dc6a-48a6-b871-0eb83d846bcd \
-                     --service InterfaceOradia \
-                     --detach
+    # 4️⃣ Déployer
+    - name: Deploy to Railway
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: |
+        echo "🚀 Déploiement en cours avec @railway/cli..."
+        railway up --detach

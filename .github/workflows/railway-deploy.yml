@@ -14,24 +14,20 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # 2️⃣ Installer la CLI Railway
+    # 2️⃣ Télécharger & installer Railway CLI (nouvelle version)
     - name: Install Railway CLI
-      run: npm install -g railway
-
-    # 3️⃣ S'assurer qu'un Procfile existe pour FastAPI
-    - name: Ensure Procfile exists
       run: |
-        if [ ! -f Procfile ]; then
-          echo "web: uvicorn server:app --host 0.0.0.0 --port \${PORT}" > Procfile
-          echo "✅ Procfile créé."
-        else
-          echo "ℹ️ Procfile déjà présent."
-        fi
+        curl -fsSL https://railway.app/install.sh | sh
+        echo "$HOME/.railway/bin" >> $GITHUB_PATH
+
+    # 3️⃣ Vérifier la version CLI
+    - name: Check Railway CLI version
+      run: railway --version
 
     # 4️⃣ Déployer avec Railway
     - name: Deploy to Railway
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
-        echo "🚀 Déploiement en cours..."
+        echo "🚀 Déploiement en cours avec nouvelle CLI..."
         railway up --service InterfaceOradia --detach

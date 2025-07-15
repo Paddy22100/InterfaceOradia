@@ -14,14 +14,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # 2️⃣ Installer la CLI Railway (nouvelle version)
+    # 2️⃣ Installer Railway CLI (via npm)
     - name: Install Railway CLI
       run: npm install -g @railway/cli
 
-    # 3️⃣ Déployer
+    # 3️⃣ Vérifier la version de la CLI
+    - name: Check Railway CLI version
+      run: railway --version
+
+    # 4️⃣ Déployer avec le service explicitement défini
     - name: Deploy to Railway
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
         echo "🚀 Déploiement en cours avec @railway/cli..."
-        railway up --detach
+        railway up --service InterfaceOradia --detach

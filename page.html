@@ -1,1 +1,61 @@
-Salut ! Comment puis-je vous aider aujourd'hui ? Si vous avez besoin de créer une page HTML pour le site oradia.fr, n'hésitez pas à me donner plus de détails sur ce que vous souhaitez inclure.
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bienvenue sur le site oradia.fr, votre source d'informations et de services en ligne.">
+    <title>Oradia - Votre partenaire en ligne</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Bienvenue sur Oradia.fr</h1>
+        <nav>
+            <ul>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#about">À propos</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="services">
+            <h2>Nos Services</h2>
+            <p>Oradia vous propose une multitude de services adaptés à vos besoins.</p>
+            <ul>
+                <li>Consultation en ligne</li>
+                <li>Support technique</li>
+                <li>Formation personnalisée</li>
+            </ul>
+        </section>
+
+        <section id="about">
+            <h2>À propos de nous</h2>
+            <p>Oradia est une plateforme dédiée à vous accompagner dans vos projets grâce à des solutions innovantes.</p>
+        </section>
+
+        <section id="contact">
+            <h2>Contactez-nous</h2>
+            <p>Pour toute question, n'hésitez pas à nous contacter via notre formulaire en ligne.</p>
+            <form action="#" method="post">
+                <label for="name">Nom :</label>
+                <input type="text" id="name" name="name" required>
+                
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" required>
+                
+                <label for="message">Message :</label>
+                <textarea id="message" name="message" required></textarea>
+                
+                <button type="submit">Envoyer</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Oradia. Tous droits réservés.</p>
+        <p><a href="#">Mentions légales</a> | <a href="#">Politique de confidentialité</a></p>
+    </footer>
+</body>
+</html>

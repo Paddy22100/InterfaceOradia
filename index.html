@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8"/>
   <title>Interface Oradia</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="/static/styles.css"/>
+  <link rel="icon" href="/static/logo.ico" type="image/x-icon"/>
 </head>
 <body>
   <!-- Logo & Titre -->
   <div id="header">
-    <img src="logo.png" alt="Logo Oradia" id="logo-header"/>
+    <img src="/static/logo.png" alt="Logo Oradia" id="logo-header"/>
     <h1>✨ Interface Oradia ✨</h1>
     <p>Bienvenue dans l’interface Oradia 🪄</p>
   </div>
@@ -23,25 +24,36 @@
 
   <!-- Application cachée avant login -->
   <div id="app" class="section" style="display:none;">
-    <!-- Zone de génération de page -->
-    <div class="section">
-      <input id="promptInput" type="text"
-             placeholder="Ex : Crée-moi une page d'abonnement..."/>
-      <button id="btn-generate">Envoyer</button>
+
+    <!-- 🧠 Zone Agent IA -->
+    <div id="agent-ia" style="margin-top: 30px; padding: 15px; background: #1a1a1a; color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.3);">
+      <h3>🤖 Agent IA Oradia</h3>
+      <p>Écris une consigne ou dicte-la au micro :</p>
+      <input type="text" id="instruction" placeholder="Ex: Ajoute une page À propos" style="width: 70%; padding: 5px;">
+      <button id="btn-send" onclick="sendInstruction()">Envoyer</button>
+      <button onclick="startDictation()">🎤</button>
     </div>
 
-    <!-- Spinner + message -->
+    <!-- Message et spinner -->
+    <div id="message" class="ai-content" style="text-align:center; margin-top:10px;"></div>
     <div id="spinner-container" class="section" style="display:none; text-align:center;">
       <div id="spinner" class="spinner"></div>
-      <p class="ai-content">Génération en cours…</p>
     </div>
 
     <!-- Aperçu de la page générée -->
-    <div id="preview" class="section ai-content"></div>
+    <div id="preview-container" class="section" style="display:none; margin-top:20px;">
+      <h4 style="color: var(--gold);">🔮 Aperçu de la page générée</h4>
+      <div style="position:relative;">
+        <iframe id="preview-iframe" src="" frameborder="0" style="width:100%; height:60vh; border-radius:8px;"></iframe>
+        <button id="fullscreen-btn" style="position:absolute; top:10px; right:10px; background: var(--gold); border:none; border-radius:4px; padding:5px 10px; cursor:pointer;">
+          ⛶ Plein écran
+        </button>
+      </div>
 
-    <!-- Bouton déploiement (caché par défaut) -->
-    <div class="section">
-      <button id="btn-deploy" style="display:none;">🚀 Déployer sur Vercel</button>
+      <!-- Bouton déploiement juste sous l'iframe -->
+      <div class="section" style="margin-top: 15px;">
+        <button id="btn-deploy" style="display:none;">🚀 Déployer sur Vercel</button>
+      </div>
     </div>
   </div>
 
@@ -64,7 +76,93 @@
     });
   </script>
 
-  <!-- TON main.js -->
-  <script src="main.js"></script>
+  <!-- AGENT IA SCRIPT -->
+  <script>
+    async function sendInstruction() {
+        const instruction = document.getElementById("instruction").value.trim();
+        const messageDiv = document.getElementById("message");
+        const spinner = document.getElementById("spinner-container");
+        const previewContainer = document.getElementById("preview-container");
+        const previewIframe = document.getElementById("preview-iframe");
+        const deployButton = document.getElementById("btn-deploy");
+        const sendButton = document.getElementById("btn-send");
+
+        if (!instruction) {
+            alert("❌ Veuillez entrer une consigne");
+            return;
+        }
+
+        // Désactiver bouton Envoyer
+        sendButton.disabled = true;
+        sendButton.textContent = "⏳ En cours...";
+
+        // Réinitialiser
+        messageDiv.textContent = "";
+        spinner.style.display = "block";
+        previewContainer.style.display = "none";
+        deployButton.style.display = "none";
+
+        try {
+            const res = await fetch("/api/generate-page", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({prompt: instruction})
+            });
+            const data = await res.json();
+            spinner.style.display = "none";
+
+            if (res.ok) {
+                messageDiv.textContent = `✅ ${data.message}`;
+                previewIframe.src = `/${data.filename}`;
+                previewContainer.style.display = "block";
+                deployButton.style.display = "inline-block";
+            } else {
+                messageDiv.textContent = "❌ Erreur : " + data.error;
+            }
+        } catch (err) {
+            spinner.style.display = "none";
+            messageDiv.textContent = "❌ Une erreur est survenue : " + err.message;
+        } finally {
+            // Réactiver bouton Envoyer
+            sendButton.disabled = false;
+            sendButton.textContent = "Envoyer";
+        }
+    }
+
+    function startDictation() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = "fr-FR";
+      recognition.start();
+      recognition.onresult = (event) => {
+          document.getElementById("instruction").value = event.results[0][0].transcript;
+      };
+      recognition.onerror = (event) => {
+          alert("❌ Erreur micro : " + event.error);
+      };
+    }
+
+    // Gestion du bouton plein écran
+    const fullscreenBtn = document.getElementById("fullscreen-btn");
+    fullscreenBtn.addEventListener("click", () => {
+      const iframe = document.getElementById("preview-iframe");
+      if (iframe.requestFullscreen) {
+          iframe.requestFullscreen();
+      } else if (iframe.mozRequestFullScreen) { /* Firefox */
+          iframe.mozRequestFullScreen();
+      } else if (iframe.webkitRequestFullscreen) { /* Chrome, Safari, Opera */
+          iframe.webkitRequestFullscreen();
+      } else if (iframe.msRequestFullscreen) { /* IE/Edge */
+          iframe.msRequestFullscreen();
+      }
+    });
+
+    // Écouteur pour fermer le plein écran avec Échap
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement) {
+        console.log("⏹️ Plein écran fermé");
+      }
+    });
+  </script>
+
 </body>
 </html>

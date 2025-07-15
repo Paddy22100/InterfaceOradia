@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['server.py'],
+    ['launcher.py'],
     pathex=[],
     binaries=[],
-    datas=[('index.html', '.'), ('style.css', '.'), ('main.js', '.'), ('logo.png', '.'), ('.env', '.')],
+    datas=[('index.html', '.'), ('styles.css', '.'), ('main.js', '.'), ('.env', '.'), ('static', 'static'), ('python_embedded', 'python_embedded'), ('server.py', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

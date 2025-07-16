@@ -9,6 +9,7 @@ app.use(cors({
   origin: "*", // ✅ Autoriser toutes les origines
   methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"], // ✅ Toutes méthodes HTTP acceptées
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // ✅ Headers acceptés
+  credentials: false, // ❌ Pas besoin de cookies dans Railway ouvert
   preflightContinue: false,
   optionsSuccessStatus: 204 // ✅ Répondre 204 pour les pré-vols
 }));
@@ -22,9 +23,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// ✅ Répondre aux pré-vols OPTIONS pour toutes les routes
+app.options("*", cors());
+
 // ✅ Route test GET
 app.get("/", (req, res) => {
-  res.send("✅ Backend Oradia is running.");
+  res.send("✅ Backend Oradia is running (CORS ultra-ouvert).");
 });
 
 // ✅ API route POST

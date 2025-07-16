@@ -4,7 +4,7 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// ✅ CORS ultra-large : autoriser toutes origines, méthodes et headers
+// ✅ Middleware CORS ultra-large : autoriser toutes origines, méthodes et headers
 app.use(cors({
   origin: "*", // ✅ Autoriser toutes les origines
   methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"], // ✅ Méthodes HTTP complètes
@@ -12,8 +12,16 @@ app.use(cors({
   credentials: true // ✅ Autoriser les cookies (si besoin plus tard)
 }));
 
-// ✅ Répondre aux pré-vols OPTIONS pour toutes les routes
-app.options("*", cors());
+// ✅ Ajouter manuellement les en-têtes CORS pour être sûr
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204); // ✅ Répondre aux pré-vols OPTIONS
+  }
+  next();
+});
 
 // ✅ Middleware pour parser le JSON
 app.use(express.json());

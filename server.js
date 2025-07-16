@@ -4,14 +4,15 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// ✅ Autoriser toutes les origines avec CORS large
+// ✅ CORS ultra-large : autoriser toutes origines, méthodes et headers
 app.use(cors({
   origin: "*", // ✅ Autoriser toutes les origines
-  methods: ["GET", "POST", "OPTIONS"], // ✅ Autoriser les méthodes courantes
-  allowedHeaders: ["Content-Type"], // ✅ Autoriser les headers nécessaires
+  methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"], // ✅ Méthodes HTTP complètes
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // ✅ Headers acceptés
+  credentials: true // ✅ Autoriser les cookies (si besoin plus tard)
 }));
 
-// ✅ Gérer les requêtes pré-vol (OPTIONS) pour toutes les routes
+// ✅ Répondre aux pré-vols OPTIONS pour toutes les routes
 app.options("*", cors());
 
 // ✅ Middleware pour parser le JSON

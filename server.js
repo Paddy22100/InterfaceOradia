@@ -4,11 +4,18 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
+// ✅ Autoriser toutes les origines avec CORS large
+app.use(cors({
+  origin: "*", // ✅ Autoriser toutes les origines
+  methods: ["GET", "POST", "OPTIONS"], // ✅ Autoriser les méthodes courantes
+  allowedHeaders: ["Content-Type"], // ✅ Autoriser les headers nécessaires
+}));
+
+// ✅ Gérer les requêtes pré-vol (OPTIONS) pour toutes les routes
+app.options("*", cors());
+
 // ✅ Middleware pour parser le JSON
 app.use(express.json());
-
-// ✅ Autoriser toutes les origines (utile pour le frontend)
-app.use(cors());
 
 // ✅ Logger toutes les requêtes
 app.use((req, res, next) => {

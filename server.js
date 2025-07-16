@@ -4,10 +4,10 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// ✅ Middleware CORS global propre
+// ✅ Middleware CORS ultra-large
 app.use(cors({
   origin: "*", // ✅ Autoriser toutes les origines
-  methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"], // ✅ Méthodes HTTP acceptées
+  methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"], // ✅ Toutes méthodes HTTP acceptées
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // ✅ Headers acceptés
   preflightContinue: false,
   optionsSuccessStatus: 204 // ✅ Répondre 204 pour les pré-vols

@@ -1,26 +1,22 @@
 const express = require("express");
-const cors = require("cors"); // ✅ Autoriser toutes origines
+const cors = require("cors"); // ✅ Middleware CORS
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// ✅ Middleware CORS ultra-large : autoriser toutes origines, méthodes et headers
+// ✅ Activer CORS ultra-large pour toutes les routes
 app.use(cors({
   origin: "*", // ✅ Autoriser toutes les origines
-  methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"], // ✅ Méthodes HTTP complètes
+  methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"], // ✅ Toutes méthodes HTTP
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // ✅ Headers acceptés
-  credentials: true // ✅ Autoriser les cookies (si besoin plus tard)
 }));
 
-// ✅ Ajouter manuellement les en-têtes CORS pour être sûr
-app.use((req, res, next) => {
+// ✅ Répondre aux pré-vols OPTIONS avant toutes les autres routes
+app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204); // ✅ Répondre aux pré-vols OPTIONS
-  }
-  next();
+  res.sendStatus(204); // ✅ Répond OK (pas de contenu)
 });
 
 // ✅ Middleware pour parser le JSON
@@ -32,7 +28,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ Test route GET
+// ✅ Route test GET
 app.get("/", (req, res) => {
   res.send("✅ Backend Oradia is running.");
 });

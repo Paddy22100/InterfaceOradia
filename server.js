@@ -4,19 +4,23 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// ✅ Activer CORS ultra-large pour toutes les routes
+// ✅ Middleware CORS global
 app.use(cors({
-  origin: "*", // ✅ Autoriser toutes les origines
-  methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"], // ✅ Toutes méthodes HTTP
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // ✅ Headers acceptés
+  origin: "*", // Autoriser toutes les origines
+  methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"], // Méthodes HTTP acceptées
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // Headers acceptés
 }));
 
 // ✅ Répondre aux pré-vols OPTIONS avant toutes les autres routes
-app.options("*", (req, res) => {
+app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-  res.sendStatus(204); // ✅ Répond OK (pas de contenu)
+  if (req.method === "OPTIONS") {
+    console.log(`🛡️ Pré-vol OPTIONS pour ${req.url}`);
+    return res.sendStatus(200); // ✅ Réponse OK pour pré-vols
+  }
+  next();
 });
 
 // ✅ Middleware pour parser le JSON
